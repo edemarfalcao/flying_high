@@ -30,18 +30,7 @@ const Counter = () => {
   };
 
   const calculateBPM = () => {
-
-    var cantosPorMin 
-    var cantosTotal
-    while (timer != 0) {
-      if (tempoAtual % 60 == 0) {
-          cantosPorMin = Math.abs(cantosTotal - cantosPorMin);
-      }
-  
-      when (clickContaCanto) {
-          do cantosTotal ++;
-      }
-  }
+    
   };
 
 
