@@ -1,83 +1,134 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import CountDown from "react-native-countdown-component";
+
+const START_MINUTES = '02';
+const START_SECOND = '00';
+const START_DERATION = 10;
 
 const Counter = () => {
-  const [count, setCount] = React.useState(0);
-  const [isRunning, setIsRunning] = React.useState(false);
-  const [counterTime, setCounterTime] = React.useState(4500);
 
-  const [id, setId] = React.useState(0);
+  const [isStop, setIsStop] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [count, setCount] = useState(0)
+  const [duration, setDuration] = useState(START_DERATION);
+  const [currentSeconds, setSeconds] = useState(START_SECOND);
+  const [currentMinutes, setMinutes] = useState(START_MINUTES);
+  const [currentTime, setCurrentTime] = useState(parseInt(START_SECOND, 10) + 60 * parseInt(START_MINUTES, 10))
 
-  let BPM = 0;
-
-  const handleClickTimer = () => {
-    if (isRunning) {
-      setCount(count + 1);
-      calculateBPM();
-    }
-    setIsRunning(true);
+  const startHandler = () => {
+   
   };
-
-  const handleClean = () => {
-    setCount(0);
+  const stopHandler = () => {
+    setIsStop(true);
     setIsRunning(false);
-    handleReset();
+  };
+  const resetHandler = () => {
+    setMinutes(START_MINUTES);
+    setSeconds(START_SECOND);
+    setIsRunning(false);
+    setIsStop(false);
+    setDuration(START_DERATION);
   };
 
-  const handleReset = () => {
-    setId(id + 1);
+  const resumeHandler = () => {
+    let newDuration =
+      parseInt(currentMinutes, 10) * 60 + parseInt(currentSeconds, 10);
+    setDuration(newDuration);
+
+    setIsRunning(true);
+    setIsStop(false);
   };
 
-  const calculateBPM = () => {
-    
-  };
+  const handleClickCount = () => {
+    setDuration(parseInt(START_SECOND, 10) + 60 * parseInt(START_MINUTES, 10));
+    setIsRunning(true);
 
+    if(isRunning) {
+      setCount(count+1)
+    }
+  }
 
+  useEffect(() => {
+    if (isRunning === true) {
+      let timer = duration;
+      var minutes, seconds;
+      const interval = setInterval(function () {
+        if (--timer <= 0) {
+          resetHandler();
+        } else {
+          minutes = parseInt(String(timer / 60), 10);
+          seconds = parseInt(String(timer % 60), 10);
 
+          minutes = minutes < 10 ? '0' + minutes : minutes;
+          seconds = seconds < 10 ? '0' + seconds : seconds;
+
+          setMinutes(String(minutes));
+          setSeconds(String(seconds));
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [isRunning]);
+
+  let BPM: any[] = []
+  
+  useEffect(() => {
+    if(isRunning) {
+      setCurrentTime(currentTime-1)
+      const totalSingingLastMinute = 15
+      if(currentTime % 60 === 0){
+        BPM.push(count - totalSingingLastMinute)
+        console.log(BPM[0])
+      }
+    }
+  }, [currentSeconds])
 
 
   return (
     <View style={styles.container}>
       <View>
+       
         <View>
-          <Text>Média por minuto</Text>
-          <Text>{BPM}</Text>
+          <Text>{currentMinutes}</Text>
+          <Text>:</Text>
+          <Text>{currentSeconds}</Text>
         </View>
-        <CountDown
-          id={id}
-          size={80}
-          until={counterTime}
-          onFinish={() => alert("Finished")}
-          digitStyle={{
-            backgroundColor: "#FFF",
-            borderWidth: 2,
-            borderColor: "transparent",
-          }}
-          timeLabelStyle={{ color: "red", fontWeight: "bold" }}
-          timeToShow={["M", "S"]}
-          timeLabels={{ m: null, s: null }}
-          running={isRunning}
-          showSeparator
-        />
-        <TouchableOpacity onPress={handleClickTimer} style={styles.tapCounter}>
-          <Text style={styles.counterText}>{count}</Text>
-        </TouchableOpacity>
-        <View style={styles.container}>
+        {!isRunning && !isStop && (
           <TouchableOpacity
-            onPress={() => setIsRunning(false)}
-            style={styles.stopButton}
-          >
-            <Text style={styles.text}>Parar</Text>
+            onPress={startHandler}
+          ><Text>START</Text>
+            
           </TouchableOpacity>
+        )}
+        {isRunning && (
+          <TouchableOpacity
+            onPress={stopHandler}
+          >
+            <Text>STOP</Text>
+       
+          </TouchableOpacity>
+        )}
 
+        {isStop && (
           <TouchableOpacity
-            onPress={() => handleClean()}
-            style={styles.cleanButton}
+            onPress={resumeHandler} 
           >
-            <Text style={styles.text}>Zerar</Text>
+            <Text>RESUME</Text>
           </TouchableOpacity>
-        </View>
+        )}
+
+        <Text>{duration}</Text>
+
+        <TouchableOpacity
+          onPress={resetHandler}
+        >
+          <Text>RESET</Text>
+        </TouchableOpacity>
+
+
+        <TouchableOpacity onPress={()=> handleClickCount()} style={styles.tapCounter}>
+          <Text>{count}</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -105,11 +156,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
   },
-  stopButton: {
+  stopTouchableOpacity: {
     backgroundColor: "#E5424B",
     padding: 20,
   },
-  cleanButton: {
+  cleanTouchableOpacity: {
     backgroundColor: "#ACAC4B",
     padding: 20,
   },
