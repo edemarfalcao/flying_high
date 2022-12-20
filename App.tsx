@@ -1,21 +1,16 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View } from 'react-native';
-import Counter from './components/Counter';
+import { SafeAreaView, StyleSheet } from "react-native";
+import CountdownTimer from "./components/CountdownTimer";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Counter/>
-      <StatusBar style="auto" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <CountdownTimer />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
