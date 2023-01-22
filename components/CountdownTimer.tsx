@@ -4,7 +4,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 const START_MINUTES = "03";
@@ -37,6 +37,9 @@ const CountdownTimer = () => {
     setLastMinuteSings(0);
     setCount(0);
     setSingsPerMinute([]);
+    setCurrentTime(
+      parseInt(START_SECOND, 10) + 60 * parseInt(START_MINUTES, 10)
+    );
   };
 
   const resumeHandler = () => {
@@ -56,6 +59,31 @@ const CountdownTimer = () => {
       setCount(count + 1);
       setLastMinuteSings(lastMinuteSings + 1);
     }
+  };
+
+  const averageSingsPerMinute = () => {
+    const timeElapsed =
+      parseInt(START_SECOND, 10) +
+      60 * parseInt(START_MINUTES, 10) -
+      currentTime;
+
+    const ratePerSecond = count / timeElapsed;
+
+    const ratePerMinute = ratePerSecond * 60;
+    return ratePerMinute.toFixed(1);
+  };
+
+  const predictTotalSings = () => {
+    const timeElapsed =
+      parseInt(START_SECOND, 10) +
+      60 * parseInt(START_MINUTES, 10) -
+      currentTime;
+
+    const ratePerSecond = count / timeElapsed;
+
+    const ratePerMinute = ratePerSecond * 60;
+
+    return (ratePerMinute * Number(START_MINUTES)).toFixed(1);
   };
 
   useEffect(() => {
@@ -85,10 +113,13 @@ const CountdownTimer = () => {
   }, [isRunning]);
 
   useEffect(() => {
-    if (isRunning) {
+    if (isRunning || currentTime === 0) {
       setCurrentTime(currentTime - 1);
 
-      if (currentTime % 60 === 0 || currentTime === 0) {
+      if (
+        (currentTime % 60 === 0 && currentTime !== 180) ||
+        currentTime === 0
+      ) {
         setSingsPerMinute(singsPerMinute.concat(lastMinuteSings));
         setLastMinuteSings(0);
       }
@@ -112,7 +143,9 @@ const CountdownTimer = () => {
           data={singsPerMinute}
           renderItem={({ item }) => <Text style={styles.item}>{item}</Text>}
         />
-        <Text>{count / (900 - currentTime)} Média de cantos por minuto</Text>
+
+        <Text>{averageSingsPerMinute()} Média de cantos por minuto</Text>
+        <Text>{predictTotalSings()} Previsão de cantos</Text>
 
         <View>
           {isRunning && (
